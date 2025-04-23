@@ -185,3 +185,5 @@ def save_quadrants_ipe(filename, arrs, pos=[], psi=0, theta=30, phi=30, cmaps=[]
         txt.write("""</page>
     </ipe>""")
 
+# TODO save_quadrants_svg
+# xml is very similar so could be a straightforward implementation
