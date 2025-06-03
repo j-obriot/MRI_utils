@@ -38,3 +38,9 @@ def tsnr(obj, detrend=False):
     if detrend:
         obj = detrend(obj)
     return ret(mean / obj.std(3))
+
+def save_first_volume(filename, out_filename=None):
+    if out_filename is None:
+        out_filename = filename
+    img = nib.load(filename)
+    nib.save(nib.Nifti1Image(img.get_fdata(), img.affine, img.header), out_filename)
