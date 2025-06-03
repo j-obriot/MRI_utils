@@ -40,7 +40,7 @@ def _get_lone_attribute(filename, attribute):
             return True
     return False
 
-def get_attr_files(directory, keys):
+def get_attr_files(directory, keys, basename=False):
     """
     returns the files in a structure {session: {subject: [file1, file2]}}
 
@@ -91,6 +91,7 @@ def get_attr_files(directory, keys):
                         break
                 if cont:
                     continue
-                acc_files.append(f)
+                fpath = os.path.join(func_dir, f)
+                acc_files.append(f if basename else fpath)
             sessions[sesname][subject] = sorted(acc_files)
     return sessions
