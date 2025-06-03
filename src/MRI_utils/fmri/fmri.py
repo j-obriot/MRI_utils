@@ -34,6 +34,7 @@ def detrend(obj, return_mean=False):
 
 def tsnr(obj, detrend=False):
     obj, ret = _sanitize(obj)
+    mean = obj.mean(3)
     if detrend:
-        obj, mean = detrend(obj, return_mean=True)
+        obj = detrend(obj)
     return ret(mean / obj.std(3))
