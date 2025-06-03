@@ -16,6 +16,10 @@ from .plot import (
     save_quadrants_ipe,
 )
 
+from .dataset import (
+    DataSet,
+)
+
 __all__ = [
     "forward",
     "backward",
@@ -24,6 +28,7 @@ __all__ = [
     "get_function_session",
     "get_attr_files",
     "save_quadrants_ipe",
+    "DataSet",
 ]
 
 from importlib.metadata import version, PackageNotFoundError
