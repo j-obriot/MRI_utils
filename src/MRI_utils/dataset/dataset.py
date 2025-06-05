@@ -1,5 +1,6 @@
 import numpy as np
 import nibabel as nib
+import twixtools
 import os
 import glob
 from pathlib import Path
@@ -38,8 +39,9 @@ class DataSet:
 
     def load_file(self, filename):
         file = str(self.get_file(filename))
-        accepted_ext = ["nii.gz", "nii", "npy"]
-        resolver = [nib.load, nib.load, np.load]
+        accepted_ext = ["nii.gz", "nii", "npy", "dat"]
+        res_twix = lambda f: twixtools.map_twix(twixtools.read_twix(f))
+        resolver = [nib.load, nib.load, np.load, res_twix]
         for i, e in enumerate(accepted_ext):
             if file[-len(e)-1:] == f".{e}":
                 return resolver[i](file)
@@ -49,6 +51,11 @@ class DataSet:
         file = self.load_file(filename)
         if type(file) == nib.Nifti1Image:
             return file.get_fdata()
+        if type(file) == list and 'image' in file[-1].keys():
+            im = file[-1]['image']
+            im.flags['zf_missing_lines'] = True
+            im.flags['remove_os'] = True
+            return im[:].squeeze()
         return file
 
     def __repr__(self):
