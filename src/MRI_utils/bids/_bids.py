@@ -1,7 +1,10 @@
 import os
 import glob
+from ..dataset import DataSet
 
 def get_function_session(directory):
+    if type(directory) == DataSet:
+        directory = str(directory)
     subjects_dirs = sorted(glob.glob(os.path.join(directory, 'sub-*/')))
 
     sessions = {}
