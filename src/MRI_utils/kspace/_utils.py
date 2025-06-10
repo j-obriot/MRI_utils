@@ -3,6 +3,7 @@ import torch
 from math import pi
 from tqdm import tqdm
 from ggrappa import GRAPPA_Recon
+import scipy.interpolate as interpolate
 
 def forward(data, dim):
     return np.fft.ifftshift(
@@ -94,11 +95,11 @@ class B0simu:
         self.vsize = vsize
         self.resk = np.zeros(self.fullk.shape, dtype=np.complex64)
 
-    def performSimu(self, TE=20e-3, acq_time=1e-3, method='very_simple'):
+    def performSimu(self, TE=20e-3, t_obs=1e-3, method='very_simple', upsample_factor=3):
         ky, kz, _, kx = self.fullk.shape
         self.k = [ky, kz, kx]
         t_i = np.linspace(-0.5, 0.5, kx)
-        t = TE + t_i * acq_time
+        t = TE + t_i * t_obs
         self.TE = TE
         self.t = t
         tx, ty, tz = (np.arange(t) for t in [kx, ky, kz])
@@ -113,14 +114,15 @@ class B0simu:
         self.GT = [GTy, GTz, GTx]
         self.GT_use = [GTy_use, GTz_use, GTx_use]
 
+        # TODO ignore where fmap == 0 and gmap == 0
         iss = np.stack(np.where(self.fmap != 1000)).T
-        self._apply_dephasing(iss, method=method)
+        self._apply_dephasing(iss, method=method, upsample_factor=upsample_factor)
         
 
-    def _apply_dephasing(self, iss, method='simple'):
+    def _apply_dephasing(self, iss, method='simple', upsample_factor=3):
         if method == 'full':
             for i in tqdm(iss):
-                factor = (np.sinc((self.gt[2] * voxel_size[2]/2 + 2 * pi * self.gmap[2][*i] / 2 * self.t) / pi)[None, None, :]
+                factor = (np.sinc((self.gt[2] * self.vsize[2]/2 + 2 * pi * self.gmap[2][*i] / 2 * self.t) / pi)[None, None, :]
                           * np.sinc(
                               (
                                   self.GT_use[0] + (2 * pi * self.gmap[0][*i] * self.t / 2 / pi)[None, None, :]
@@ -156,6 +158,18 @@ class B0simu:
                       * (np.exp(2 * pi * 1j * self.fmap * self.TE)))
             self.resk = self.fulli * factor[:, :, None, :]
             self.resk = backward(self.resk, (0, 1, 3))
+        elif method == 'upsample':
+            factor = upsample_factor
+            big_arr = self.fulli.repeat(factor, axis=0).repeat(factor, axis=1).repeat(factor, axis=3)
+            points = [np.linspace(0, 1, self.fullk.shape[i]) for i in [0, 1, 3]]
+            points_up = np.meshgrid(*[np.linspace(0, 1, self.fullk.shape[i]*factor) for i in [0, 1, 3]], indexing='ij')
+            mapper = interpolate.interpn(points, self.fmap, points_up, method='linear')
+            big_fmap = (mapper / mapper.max()) * self.fmap.max()
+            big_arr *= np.exp(2 * pi * 1j * big_fmap * self.TE)[:, :, None, :]
+            c = np.array([*big_arr.shape]) // 2
+            r = c + np.array([*self.fulli.shape]) // 2
+            l = c - np.array([*self.fulli.shape]) // 2
+            self.resk = backward(big_arr, (0, 1, 3))[l[0]:r[0], l[1]:r[1], :, l[3]:r[3]]
 
 
     def performGrappa(self, af, nb_lines):
