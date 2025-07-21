@@ -1,6 +1,6 @@
 """kspace manipulation module."""
 
-from ._utils import forward, backward, zeropad, extract_data_acs, B0simu
+from ._utils import forward, backward, zeropad, extract_data_acs, B0simu, B0simu2D
 
 
 __all__ = [
@@ -9,5 +9,6 @@ __all__ = [
     "zeropad",
     "extract_data_acs",
     "B0simu",
+    "B0simu2D",
 ]
 
