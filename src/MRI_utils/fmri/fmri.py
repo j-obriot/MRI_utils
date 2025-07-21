@@ -34,10 +34,10 @@ def detrend(obj, return_mean=False):
 
 def tsnr(obj, detrend=False):
     obj, ret = _sanitize(obj)
-    mean = obj.mean(3)
+    mean = obj.mean(-1)
     if detrend:
         obj = detrend(obj)
-    return ret(mean / obj.std(3))
+    return ret(mean / obj.std(-1))
 
 def save_first_volume(filename, out_filename=None):
     if out_filename is None:
