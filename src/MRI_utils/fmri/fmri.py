@@ -35,7 +35,7 @@ def detrend(obj, return_mean=False):
     obj, ret = _sanitize(obj)
     dt = obj - savgol_filter(obj, obj.shape[3], 2, axis=3)
     if return_mean:
-        return ret(dt), obj.mean(3)
+        return ret(dt + obj.mean(3)[..., None]), obj.mean(3)
     return ret(dt)
 
 def smooth(obj, sigma=0.75):
@@ -48,6 +48,10 @@ def get_nvolumes(obj, n, start=None):
         return ret(obj[..., -n:])
     else:
         return ret(obj[..., start:n+start])
+
+def get_svolumes(obj, slic):
+    obj, ret = _sanitize(obj)
+    return ret(obj[..., slic])
 
 def tsnr(obj, detrend=False):
     obj, ret = _sanitize(obj)
@@ -62,7 +66,7 @@ def save_first_volume(filename, out_filename=None):
     img = nib.load(filename)
     nib.save(nib.Nifti1Image(img.get_fdata(), img.affine, img.header), out_filename)
 
-def get_reasonable_confounds(file, nvol, index=None):
+def get_reasonable_confounds(file, nvol, index=None, slic=None):
     confounds = pd.read_csv(file, sep='\t')
     alen = 0
     max_acomp = 15
@@ -81,15 +85,18 @@ def get_reasonable_confounds(file, nvol, index=None):
             *[f"a_comp_cor_{i:02}" for i in range(alen)],
             "framewise_displacement",
             ]
-    return get_confounds(file, keys, nvol, index)
+    return get_confounds(file, keys, nvol, index, slic)
 
-def get_confounds(file, keys, nvol, index=None):
+def get_confounds(file, keys, nvol, index=None, slic=None):
     confounds = pd.read_csv(file, sep='\t')
     mat = pd.DataFrame()
     for k in reversed(keys):
-        mat.insert(0, k, confounds[-nvol:][k])
+        if slic is not None:
+            mat.insert(0, k, confounds[slic][k])
+        else:
+            mat.insert(0, k, confounds[-nvol:][k])
     if index is not None:
-        mat.set_index(index)
+        mat = mat.set_index(index)
     return mat
 
 class _has_changed:
@@ -105,13 +112,14 @@ class Func:
         if nvols == 0:
             nvols = _sanitize(volumes)[0].shape[-1] - skip_vols
         self.nvols = nvols
-        self.volumes = get_nvolumes(volumes, nvols, start=skip_vols)
+        self.slic = np.s_[skip_vols:skip_vols+nvols]
+        self.volumes = get_svolumes(volumes, self.slic)
         self.detrended, self.mean = detrend(self.volumes, return_mean=True)
         self.index = np.linspace(0, t_r*(nvols-1), nvols)
         if confounds_keys is None:
-            self.confounds = get_reasonable_confounds(confounds, nvols, index=self.index)
+            self.confounds = get_reasonable_confounds(confounds, nvols, index=self.index, slic=self.slic)
         else:
-            self.confounds = get_confounds(confounds, confounds_keys, nvols, index=self.index)
+            self.confounds = get_confounds(confounds, confounds_keys, nvols, index=self.index, slic=self.slic)
 
         self.t_r = t_r
         self._tsnr = None
@@ -131,9 +139,9 @@ class Func:
 
     def set_confounds(self, confounds, confounds_keys=None):
         if confounds_keys is None:
-            self.confounds = get_reasonable_confounds(confounds, self.nvols, index=self.index)
+            self.confounds = get_reasonable_confounds(confounds, self.nvols, index=self.index, slic=self.slic)
         else:
-            self.confounds = get_confounds(confounds, confounds_keys, self.nvols, index=self.index)
+            self.confounds = get_confounds(confounds, confounds_keys, self.nvols, index=self.index, slic=self.slic)
 
     def seed_based_DMN(self, seed=(0, -53, 26)):
         use = self.detrended
@@ -143,7 +151,7 @@ class Func:
         args = {
                 "vols": use,
                 "seed": seed,
-                "confounds": self.confounds,
+                "confounds": tuple(map(float, np.array(self.confounds).flatten())),
                 }
         if self.dmn is not None and self.dmn.did_it(**args):
             return self.dmn.obj
