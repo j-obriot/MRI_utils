@@ -23,7 +23,7 @@ mcmap[50:, -1] = 0.8
 mcmap[:50, -1] = np.linspace(0, 0.8, 50) # low values are very transparent
 cmap = matplotlib.colors.ListedColormap(mcmap)
 
-save_quadrants_ipe([B0, img], pos, cmaps=[cmap, 'gray'])
+save_quadrants_ipe("quadrant.ipe", [B0, img], pos, cmaps=[cmap, 'gray'])
 ```
 
 ![result](/ressources/B0_overlayed.svg)
