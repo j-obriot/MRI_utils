@@ -18,6 +18,11 @@ dependencies = [
   "matplotlib",
   "scipy",
   "nibabel",
+  "imageio[ffmpeg]",
+  "tqdm",
+  "torch",
+  "nilearn",
+  "pandas",
 ]
 
 [tool.coverage.run]
