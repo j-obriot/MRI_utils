@@ -1,6 +1,7 @@
-"""fmri module."""
-
-from .fmri import tsnr, detrend
+from .fmri import (
+        tsnr,
+        detrend,
+        )
 
 __all__ = [
     "tsnr",
