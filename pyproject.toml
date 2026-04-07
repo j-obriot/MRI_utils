@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MRI_utils"
-version = "0.1.0"
+version = "0.1.1"
 description = "my tools."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,7 +20,7 @@ dependencies = [
   "nibabel",
   "imageio[ffmpeg]",
   "tqdm",
-  "torch",
+  # "torch",
   "nilearn",
   "pandas",
 ]
