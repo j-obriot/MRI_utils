@@ -122,9 +122,10 @@ def save_selected_slice(
     slc = _extract_slice(data_ras, idx, view)
 
     # default saving parameters
+    vmin, vmax = np.quantile(data_ras, [0.01, 0.99])
     imkw = {"cmap": "gray",
-            "vmin": np.quantile(data_ras, 0.01), # ignore 1% low and high
-            "vmax": np.quantile(data_ras, 0.99), # for scale.
+            "vmin": vmin, # ignore 1% low and high
+            "vmax": vmax, # for scale.
             **imshow_kwargs}
 
     plt.imsave(filename, np.rot90(slc), **imkw)
