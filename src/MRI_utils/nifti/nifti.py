@@ -204,6 +204,10 @@ def create_slice_gif(img,
     elif format_ == 'apng':
         imageio.mimsave(output_file, frames, duration=duration, format='APNG')
     elif format_ == 'mp4':
+        try:
+            import imageio_ffmpeg
+        except ImportError:
+            raise RuntimeError("image-ffmpeg is required but not available") from e
         fps = int(1/duration)
         imageio.mimsave(output_file, frames, fps=fps, codec='libx264', quality=8)
 
@@ -291,6 +295,10 @@ def create_epi_gif(img,
     elif format_ == 'apng':
         imageio.mimsave(output_file, frames, duration=duration, format='APNG')
     elif format_ == 'mp4':
+        try:
+            import imageio_ffmpeg
+        except ImportError:
+            raise RuntimeError("image-ffmpeg is required but not available") from e
         fps = int(1/duration)
         imageio.mimsave(output_file, frames, fps=fps, codec='libx264', quality=8)
 
