@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+def use_ipe():
+    mpl.use(f"module://{__package__}.ipe-tools.matplotlib.backend_ipe")
 
 def cascade_plot(data, x=None, angle=10, spacing=1.0, scale=1.0,
                  ax=None, **kwargs):

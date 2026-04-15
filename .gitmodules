@@ -1,0 +1,3 @@
+[submodule "src/MRI_utils/plot/ipe-tools"]
+	path = src/MRI_utils/plot/ipe-tools
+	url = https://github.com/otfried/ipe-tools
