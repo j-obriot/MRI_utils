@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.rcsetup import validate_bool
 import importlib
 
 def print_ipe(self, filename, *args, **kwargs):
@@ -12,6 +12,40 @@ def print_ipe(self, filename, *args, **kwargs):
 def use_ipe():
     FigureCanvasBase.print_ipe = print_ipe
     FigureCanvasBase.filetypes["ipe"] = "Ipe 7 file format"
+
+def use_science_style():
+    importlib.import_module("scienceplots")
+    plt.style.use(['science', 'no-latex'])
+    params = {
+            'figure.dpi': 250,
+            'legend.borderaxespad': 0.,
+            'patch.linewidth': .4,
+            'lines.linewidth': .4,
+            'hatch.linewidth': .4,
+            'grid.linewidth': 0.4,
+            'axes.linewidth': 0.4,
+            'legend.edgecolor': '0.',
+            'legend.fancybox': False,
+            'legend.framealpha': 1.,
+            'legend.frameon': True,
+            'font.size': 6,
+            'axes.titlesize': 7,
+            'axes.labelsize': 5,
+            'legend.fontsize': 6,
+            'legend.title_fontsize': 7,
+            'xtick.labelsize': 5,
+            'ytick.labelsize': 5,
+            'xtick.minor.width': 0.4,
+            'xtick.major.width': 0.4,
+            'ytick.minor.width': 0.4,
+            'ytick.major.width': 0.4,
+            'axes.formatter.use_mathtext': False,
+            'ipe.textsize': True,
+            }
+    if 'ipe.textsize' not in plt.rcParams:
+        plt.rcParams.validate['ipe.textsize'] = validate_bool
+        
+    plt.rcParams.update(params)
 
 
 def cascade_plot(data, x=None, angle=10, spacing=1.0, scale=1.0,
