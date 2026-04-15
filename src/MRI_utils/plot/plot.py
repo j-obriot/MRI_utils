@@ -1,9 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib.backend_bases import FigureCanvasBase
+import importlib
+
+def print_ipe(self, filename, *args, **kwargs):
+    backend_ipe = importlib.import_module(f"{__package__}.ipe-tools.matplotlib.backend_ipe")
+    canvas = backend_ipe.FigureCanvasIpe(self.figure)
+    return canvas.print_ipe(filename, *args, **kwargs)
 
 def use_ipe():
-    mpl.use(f"module://{__package__}.ipe-tools.matplotlib.backend_ipe")
+    FigureCanvasBase.print_ipe = print_ipe
+    FigureCanvasBase.filetypes["ipe"] = "Ipe 7 file format"
+
 
 def cascade_plot(data, x=None, angle=10, spacing=1.0, scale=1.0,
                  ax=None, **kwargs):
