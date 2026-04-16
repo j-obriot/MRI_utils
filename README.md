@@ -27,3 +27,21 @@ save_quadrants_ipe("quadrant.ipe", [B0, img], pos, cmaps=[cmap, 'gray'])
 ```
 
 ![result](/ressources/B0_overlayed.svg)
+
+### plot style
+
+I use a particular style built on top of scienceplots. I also often save my plots in ipe to edit them afterwards.
+
+```py
+import matplotlib.pyplot as plt
+import MRI_utils
+
+MRI_utils.plot.use_science_style()
+MRI_utils.plot.use_ipe()
+
+plt.plot(...)
+
+plt.savefig("plot.ipe")
+```
+
+![result](/ressources/fig_spectrum.svg)
