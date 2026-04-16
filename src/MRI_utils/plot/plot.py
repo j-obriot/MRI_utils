@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.rcsetup import validate_bool
+from matplotlib.rcsetup import (validate_bool, validate_string)
 import importlib
 
 def print_ipe(self, filename, *args, **kwargs):
@@ -41,9 +41,31 @@ def use_science_style():
             'ytick.major.width': 0.4,
             'axes.formatter.use_mathtext': False,
             'ipe.textsize': True,
-            }
+            'ipe.preamble': r"""
+                \usepackage{amsmath}
+                \usepackage[scaled]{helvet}
+                \renewcommand\familydefault{\sfdefault}
+                \usepackage[helvet]{sfmath}
+                \renewcommand{\encodingdefault}{T1}
+                \usepackage{setspace}
+                \setstretch{0.7}
+                \usepackage{nicefrac}
+                \renewcommand{\mathbf}[1]{\mbox{ \boldmath$\!\!#1$\unboldmath}}
+                \newcommand{\tsc}[1]{\textit{\scriptsize{#1}}}
+                \newcommand{\WarpStyle}[1]{\textsc{#1}}
+                \newcommand{\warp}{\WarpStyle{WARP}}
+                \newcommand{\rb}{\WarpStyle{Warp1}}
+                \newcommand{\pvt}{PVT}
+                \newcommand{\pvtlike}{pvt-like}
+                \newcommand{\nv}{\ensuremath{n_v}}
+                \newcommand{\nt}{\ensuremath{n_t}}
+                \newcommand{\nts}{\ensuremath{n_t^*}}
+                """,
+             }
     if 'ipe.textsize' not in plt.rcParams:
         plt.rcParams.validate['ipe.textsize'] = validate_bool
+    if 'ipe.preamble' not in plt.rcParams:
+        plt.rcParams.validate['ipe.preamble'] = validate_string
         
     plt.rcParams.update(params)
 
