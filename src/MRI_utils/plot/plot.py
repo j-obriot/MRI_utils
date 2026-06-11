@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.rcsetup import (validate_bool, validate_string)
+from cycler import cycler
 import importlib
 
 def print_ipe(self, filename, *args, **kwargs):
@@ -61,7 +62,19 @@ def use_science_style():
                 \newcommand{\nt}{\ensuremath{n_t}}
                 \newcommand{\nts}{\ensuremath{n_t^*}}
                 """,
-             }
+            'axes.prop_cycle': cycler('color', [
+                '#000000',
+                '#cc3131',
+                '#219362',
+                '#17699d',
+                '#4e277f',
+                '#7e4721',
+                '#d54b8a',
+                '#db7733',
+                '#1c97cf',
+                '#a4c454'
+                ])
+                }
     if 'ipe.textsize' not in plt.rcParams:
         plt.rcParams.validate['ipe.textsize'] = validate_bool
     if 'ipe.preamble' not in plt.rcParams:
